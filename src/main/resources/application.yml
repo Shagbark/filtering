@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: filtering-redis
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/jobs
+    username: postgres
+    password: кщще
+
+  jpa:
+    properies:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
