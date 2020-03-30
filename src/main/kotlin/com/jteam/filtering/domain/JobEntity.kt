@@ -1,5 +1,6 @@
 package com.jteam.filtering.domain
 
+import com.jteam.filtering.domain.converter.CurrencyTypeConverter
 import javax.persistence.*
 
 @Entity
@@ -18,6 +19,7 @@ data class JobEntity (
 
     val salary: Int,
 
+    @Convert(converter = CurrencyTypeConverter::class)
     val currency: Currency
 
 )
