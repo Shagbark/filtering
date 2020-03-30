@@ -16,11 +16,31 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    lombok_version = '1.18.10'
+    modelmapper_version = '2.3.5'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+
     // starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    implementation "org.modelmapper:modelmapper:$modelmapper_version"
+
+    compileOnly "org.projectlombok:lombok:$lombok_version"
+    annotationProcessor "org.projectlombok:lombok:$lombok_version"
 }
 
 compileKotlin {
