@@ -41,7 +41,10 @@ dependencies {
     // starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // TODO: exclude io.lettuce from redis starter: https://www.concretepage.com/questions/599
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation 'redis.clients:jedis:3.2.0'
 
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.flywaydb:flyway-core'
