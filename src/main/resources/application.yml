@@ -4,12 +4,16 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/jobs
-    username: postgres
-    password: кщще
+    url: ${PG_URL:jdbc:postgresql://localhost:5432/jobs}
+    username: ${PG_USER:postgres}
+    password: ${PG_PASSWORD:кщще}
 
   jpa:
     properies:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
+
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
