@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.HttpServletResponse
 
-@RestController("/api/job/filter")
+@RestController
+@RequestMapping("/api/job/filter")
 class JobFilterController(private val filterService: FilterService) {
 
     @PostMapping
-    fun createFilter(@RequestBody filterValue : String,
-                     response: HttpServletResponse) {
+    fun createFilter(@RequestBody filterValue : String, response: HttpServletResponse) {
         val filterId = filterService.createFilter(filterValue)
 
         response.setHeader("Location", "/api/job/filter?filterId=$filterId")

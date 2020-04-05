@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 @Repository
-class FilterRepositoryImpl(private val redisTemplate: RedisTemplate<String, Any>) : FilterRepository {
+open class FilterRepositoryImpl(private val redisTemplate: RedisTemplate<String, Any>) : FilterRepository {
 
     companion object {
         const val WEEK_IN_DAYS = 7L
