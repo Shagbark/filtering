@@ -27,4 +27,8 @@ open class FilterRepositoryImpl(private val redisTemplate: RedisTemplate<String,
         return filterKey
     }
 
+    override fun extractFilterJson(filterId: String): String {
+        return valueOperations.get(filterId) as String
+    }
+
 }
