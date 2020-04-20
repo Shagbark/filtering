@@ -10,7 +10,7 @@ import javax.annotation.PostConstruct
 open class FilterRepositoryImpl(private val redisTemplate: RedisTemplate<String, Any>) : FilterRepository {
 
     companion object {
-        const val WEEK_IN_DAYS = 7L
+        const val FILTER_TTL = 7L
     }
 
     private lateinit var valueOperations : ValueOperations<String, Any>
@@ -22,7 +22,7 @@ open class FilterRepositoryImpl(private val redisTemplate: RedisTemplate<String,
 
     override fun createFilter(filterValue: String): String {
         val filterKey = filterValue.hashCode().toString()
-        valueOperations.set(filterKey, filterValue, WEEK_IN_DAYS, TimeUnit.DAYS)
+        valueOperations.set(filterKey, filterValue, FILTER_TTL, TimeUnit.SECONDS)
 
         return filterKey
     }
