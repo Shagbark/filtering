@@ -5,54 +5,51 @@ import com.jteam.filtering.domain.JobEntity
 import com.jteam.filtering.domain.dto.Filter
 import com.jteam.filtering.domain.dto.Job
 import com.jteam.filtering.repository.JobRepository
+import org.modelmapper.ModelMapper
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import javax.persistence.criteria.Path
 
 @Service
-open class JobFilterService(private val jobRepository: JobRepository, private val objectMapper: ObjectMapper) {
+open class JobFilterService(private val jobRepository: JobRepository,
+                            private val modelMapper: ModelMapper,
+                            private val objectMapper: ObjectMapper) {
 
     fun getFilteredJobList(filterValue : String) : Collection<Job> {
         val filterObject : Filter = objectMapper.readValue(filterValue, Filter::class.java)
-        createFilterQuery(filterObject)
-        return emptyList()
+        val jobs = findJobs(filterObject)
+
+        return jobs.map { modelMapper.map(it, Job::class.java) }
     }
 
-    private fun createFilterQuery(filter : Filter) {
-        val filterSpecifications : MutableList<Specification<JobEntity>> = ArrayList()
-        if (!filter.companies.isNullOrEmpty()) {
-            filterSpecifications.add(getStringInSpecification("companyName", filter.companies))
-        }
+    private fun findJobs(filter : Filter) : Collection<JobEntity> {
+        val specification : Specification<JobEntity>? = getFilterSpecifications(filter)
 
-        if (!filter.vacancies.isNullOrEmpty()) {
-            filterSpecifications.add(getStringInSpecification("vacancyName", filter.vacancies))
-        }
-
-        if (filterSpecifications.isNotEmpty()) {
-            val specification = Specification.where(filterSpecifications[0])
-            if (filterSpecifications.size > 1) {
-                for (i in 1 until filterSpecifications.size) {
-                    specification!!.and(filterSpecifications[i])
-                }
-            }
-            val list = jobRepository.findAll(specification)
-            list.forEach { println(it) }
-        }
+        return if (specification == null) jobRepository.findAll() else jobRepository.findAll(specification)
     }
 
-    private fun getFilterSpecification() : Specification<JobEntity> {
-        var specification : Specification<JobEntity>?
+    private fun getFilterSpecifications(filter: Filter) : Specification<JobEntity>? {
+        var specification : Specification<JobEntity>? = null
 
+        specification = addOrCreateSpecification(specification, "companyName", filter.companies)
+        specification = addOrCreateSpecification(specification, "vacancyName", filter.vacancies)
+
+        return specification
     }
 
-    private fun addSpecification(
+    private fun addOrCreateSpecification(
         specification: Specification<JobEntity>?,
         fieldName: String,
         values: Collection<String>?
-    ) : Specification<JobEntity> {
+    ) : Specification<JobEntity>? {
         if (!values.isNullOrEmpty()) {
-
+            return if (specification != null) {
+                specification.and(getStringInSpecification(fieldName, values))
+            } else {
+                Specification.where(getStringInSpecification(fieldName, values))
+            }
         }
+        return specification
     }
 
     private fun getStringInSpecification(fieldName : String, values : Collection<String>?) : Specification<JobEntity> {
