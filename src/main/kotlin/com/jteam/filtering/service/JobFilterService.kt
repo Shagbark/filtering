@@ -3,6 +3,7 @@ package com.jteam.filtering.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jteam.filtering.domain.JobEntity
 import com.jteam.filtering.domain.dto.Filter
+import com.jteam.filtering.domain.dto.FilterBetweenValue
 import com.jteam.filtering.domain.dto.Job
 import com.jteam.filtering.repository.JobRepository
 import org.modelmapper.ModelMapper
@@ -33,6 +34,7 @@ open class JobFilterService(private val jobRepository: JobRepository,
 
         specification = addOrCreateSpecification(specification, "companyName", filter.companies)
         specification = addOrCreateSpecification(specification, "vacancyName", filter.vacancies)
+        specification = addOrCreateSpecification(specification, "salary", filter.salary)
 
         return specification
     }
@@ -52,8 +54,27 @@ open class JobFilterService(private val jobRepository: JobRepository,
         return specification
     }
 
+    private fun addOrCreateSpecification(
+        specification: Specification<JobEntity>?,
+        fieldName: String,
+        salary: FilterBetweenValue?
+    ) : Specification<JobEntity>? {
+        if (salary != null) {
+            return if (specification != null) {
+                specification.and(getBetweenSpecification(fieldName, salary))
+            } else {
+                Specification.where(getBetweenSpecification(fieldName, salary))
+            }
+        }
+        return specification
+    }
+
     private fun getStringInSpecification(fieldName : String, values : Collection<String>?) : Specification<JobEntity> {
         return Specification<JobEntity> { root, _, _ -> root.get<Path<JobEntity>>(fieldName).`in`(values)}
+    }
+
+    private fun getBetweenSpecification(fieldName: String, salary: FilterBetweenValue) : Specification<JobEntity> {
+        return Specification<JobEntity> { root, _, criteriaBuilder -> criteriaBuilder.between(root.get(fieldName), salary.from, salary.to) }
     }
 
 }
