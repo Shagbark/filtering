@@ -1,19 +1,59 @@
 package com.jteam.filtering.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.jteam.filtering.domain.JobEntity
 import com.jteam.filtering.domain.dto.Filter
 import com.jteam.filtering.domain.dto.Job
 import com.jteam.filtering.repository.JobRepository
+import org.modelmapper.ModelMapper
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+import javax.persistence.criteria.Path
 
 @Service
-open class JobFilterService(private val jobRepository: JobRepository) {
+open class JobFilterService(private val jobRepository: JobRepository,
+                            private val modelMapper: ModelMapper,
+                            private val objectMapper: ObjectMapper) {
 
     fun getFilteredJobList(filterValue : String) : Collection<Job> {
-        TODO("Implement")
+        val filterObject : Filter = objectMapper.readValue(filterValue, Filter::class.java)
+        val jobs = findJobs(filterObject)
+
+        return jobs.map { modelMapper.map(it, Job::class.java) }
     }
 
-    fun createFilterQuery(filter : Filter) {
-        TODO("Implement")
+    private fun findJobs(filter : Filter) : Collection<JobEntity> {
+        val specification : Specification<JobEntity>? = getFilterSpecifications(filter)
+
+        return if (specification == null) jobRepository.findAll() else jobRepository.findAll(specification)
+    }
+
+    private fun getFilterSpecifications(filter: Filter) : Specification<JobEntity>? {
+        var specification : Specification<JobEntity>? = null
+
+        specification = addOrCreateSpecification(specification, "companyName", filter.companies)
+        specification = addOrCreateSpecification(specification, "vacancyName", filter.vacancies)
+
+        return specification
+    }
+
+    private fun addOrCreateSpecification(
+        specification: Specification<JobEntity>?,
+        fieldName: String,
+        values: Collection<String>?
+    ) : Specification<JobEntity>? {
+        if (!values.isNullOrEmpty()) {
+            return if (specification != null) {
+                specification.and(getStringInSpecification(fieldName, values))
+            } else {
+                Specification.where(getStringInSpecification(fieldName, values))
+            }
+        }
+        return specification
+    }
+
+    private fun getStringInSpecification(fieldName : String, values : Collection<String>?) : Specification<JobEntity> {
+        return Specification<JobEntity> { root, _, _ -> root.get<Path<JobEntity>>(fieldName).`in`(values)}
     }
 
 }
