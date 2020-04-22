@@ -24,3 +24,7 @@ Stack:
 * Gradle 
 * Flyway
 * Redis (and Spring Jedis library)
+
+P.S. Since this is a pet-project, the main emphasis was placed on the implementation of the idea and 
+its verification. Therefore, I did not add multiple checks for various variants of the transmitted data 
+(in other words, I did not validate the input data). 
