@@ -4,4 +4,6 @@ interface FilterRepository {
 
     fun createFilter(filterValue: String) : String
 
+    fun extractFilterJson(filterId : String) : String
+
 }

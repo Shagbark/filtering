@@ -1,10 +1,16 @@
 package com.jteam.filtering.domain
 
-import com.jteam.filtering.domain.converter.CurrencyTypeConverter
+import com.jteam.filtering.domain.type.PostgreSqlEnumType
+import org.hibernate.annotations.Type
+import org.hibernate.annotations.TypeDef
 import javax.persistence.*
 
 @Entity
 @Table(name = "jobs")
+@TypeDef(
+    name = "pgsql_enum",
+    typeClass = PostgreSqlEnumType::class
+)
 data class JobEntity (
 
     @Id
@@ -19,7 +25,9 @@ data class JobEntity (
 
     val salary: Int,
 
-    @Convert(converter = CurrencyTypeConverter::class)
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "currency")
+    @Type(type = "pgsql_enum")
     val currency: Currency
 
 )
